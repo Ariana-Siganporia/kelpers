@@ -21,7 +21,7 @@ const fraunces = Fraunces({
 })
 
 export const metadata: Metadata = {
-  title: "Terra — Community Environmental Reporting",
+  title: "kelpers — Community Environmental Reporting",
   description:
     "Report environmental issues, discover local incidents, and take action with your community. From a single litter photo to coordinated crisis response.",
   generator: "v0.app",
