@@ -28,6 +28,8 @@ interface StoreValue {
   activity: ProfileActivity[]
   viewMode: ViewMode
   setViewMode: (m: ViewMode) => void
+  following: string[]
+  toggleFollow: (userId: string) => void
   addReport: (r: Omit<Report, "id" | "createdAt" | "confirmationCount" | "userId" | "userName">) => Report
   confirmReport: (id: string) => void
   toggleRegister: (id: string) => void
@@ -55,6 +57,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [research, setResearch] = useState<ResearchRequest[]>(SEED_RESEARCH)
   const [activity, setActivity] = useState<ProfileActivity[]>(PROFILE_ACTIVITY)
   const [viewMode, setViewMode] = useState<ViewMode>("community")
+  const [following, setFollowing] = useState<string[]>(["u-312"])
 
   const value = useMemo<StoreValue>(() => {
     const addReport: StoreValue["addReport"] = (input) => {
@@ -144,6 +147,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setIncidents((prev) => prev.map((inc) => (inc.id === id ? { ...inc, status: "responding" } : inc)))
     }
 
+    const toggleFollow: StoreValue["toggleFollow"] = (userId) => {
+      setFollowing((prev) => (prev.includes(userId) ? prev.filter((id) => id !== userId) : [userId, ...prev]))
+    }
+
     return {
       reports,
       incidents,
@@ -152,6 +159,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       activity,
       viewMode,
       setViewMode,
+      following,
+      toggleFollow,
       addReport,
       confirmReport,
       toggleRegister,
@@ -161,7 +170,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       respondToIncident,
       observationCount: IMPACT_STATS.observationsThisMonth + Math.max(0, reports.length - SEED_REPORTS.length),
     }
-  }, [reports, incidents, volunteer, research, activity, viewMode])
+  }, [reports, incidents, volunteer, research, activity, viewMode, following])
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
 }

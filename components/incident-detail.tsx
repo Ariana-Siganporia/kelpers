@@ -1,28 +1,39 @@
 "use client"
 
-import { ArrowDown, CalendarDays, MapPin, Radio, Sparkles } from "lucide-react"
+import { ArrowDown, ArrowRight, CalendarDays, HandHeart, MapPin, Radio, Sparkles } from "lucide-react"
+import Link from "next/link"
 import { CategoryIcon } from "@/components/category-icon"
 import { SeverityBadge } from "@/components/severity-badge"
 import { ReportCard } from "@/components/report-card"
+import { ListenButton } from "@/components/listen-button"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { categoryMeta } from "@/lib/categories"
 import { formatDateTime } from "@/lib/format"
+import { matchOpportunity } from "@/lib/help-matching"
 import { useStore } from "@/lib/store"
 import type { Incident } from "@/lib/types"
 
 export function IncidentDetail({
   incident,
   onOpenReport,
+  onOpenOpportunity,
 }: {
   incident: Incident
   onOpenReport?: (reportId: string) => void
+  onOpenOpportunity?: (opportunityId: string) => void
 }) {
-  const { reports, viewMode, respondToIncident } = useStore()
+  const { reports, viewMode, respondToIncident, volunteer } = useStore()
   const meta = categoryMeta(incident.category)
   const memberReports = incident.reportIds
     .map((id) => reports.find((r) => r.id === id))
     .filter((r): r is NonNullable<typeof r> => Boolean(r))
+  const match = matchOpportunity(incident, volunteer)
+
+  const speech =
+    `${incident.title}. ${incident.groupingConfidenceLabel}. Severity: ${incident.severity}. ` +
+    `${incident.reportCount} community reports were grouped into this incident near ${incident.approximateLocation}. ` +
+    `${incident.description}`
 
   return (
     <div className="flex flex-col gap-5 p-5">
@@ -52,6 +63,7 @@ export function IncidentDetail({
         <Badge variant="outline" className="font-normal">
           {incident.groupingConfidenceLabel}
         </Badge>
+        <ListenButton text={speech} label="Listen" size="sm" className="ml-auto" />
       </div>
 
       {/* AI grouping visual */}
@@ -95,6 +107,45 @@ export function IncidentDetail({
           {incident.status === "responding" ? "Your organization is responding" : "Respond to this incident"}
         </Button>
       )}
+
+      <div>
+        <p className="mb-2 flex items-center gap-2 text-sm font-semibold">
+          <HandHeart className="size-4 text-primary" />
+          How you can help
+        </p>
+        {match ? (
+          <button
+            type="button"
+            onClick={() => onOpenOpportunity?.(match.id)}
+            className="flex w-full items-center gap-3 rounded-2xl border border-primary/25 bg-primary/5 p-3 text-left transition-colors hover:bg-primary/10"
+          >
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
+              <CategoryIcon name="HeartPulse" className="size-4" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-semibold">{match.title}</span>
+              <span className="block truncate text-xs text-muted-foreground">
+                {match.organizationName} · {match.distanceMiles} mi · {match.date}
+              </span>
+            </span>
+            <ArrowRight className="size-4 shrink-0 text-primary" />
+          </button>
+        ) : (
+          <Link
+            href="/help"
+            className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-3 text-left transition-colors hover:bg-secondary"
+          >
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
+              <HandHeart className="size-4" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold">Explore ways to help</span>
+              <span className="block text-xs text-muted-foreground">Find volunteer events and cleanups near you</span>
+            </span>
+            <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+          </Link>
+        )}
+      </div>
 
       <div>
         <h4 className="mb-2 text-sm font-semibold">Contributing reports</h4>

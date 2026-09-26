@@ -563,6 +563,15 @@ export const PROFILE_ACTIVITY: ProfileActivity[] = [
   { id: "a5", type: "volunteer", label: "Registered for tree planting", location: "Atlanta", date: "Sept 8" },
 ]
 
+export const COMMUNITY_MEMBERS = [
+  { id: "u-102", name: "Marcus D.", location: "NW Atlanta", reports: 14, cause: "Air quality", color: "#dc2626" },
+  { id: "u-201", name: "Sam T.", location: "Chattahoochee", reports: 9, cause: "Water", color: "#0369a1" },
+  { id: "u-305", name: "Devon K.", location: "BeltLine", reports: 6, cause: "Trees", color: "#92400e" },
+  { id: "u-312", name: "Grace L.", location: "Freedom Park", reports: 11, cause: "Wildlife", color: "#16a34a" },
+  { id: "u-320", name: "Tomas V.", location: "West End", reports: 8, cause: "Flooding", color: "#2563eb" },
+  { id: "u-340", name: "Hana C.", location: "BeltLine", reports: 5, cause: "Conservation", color: "#ca8a04" },
+]
+
 export const IMPACT_STATS = {
   observationsThisMonth: 2481,
   likelyIncidents: 1103,
