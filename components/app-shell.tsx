@@ -4,7 +4,6 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import type { ReactNode } from "react"
 import {
-  Compass,
   Home,
   LifeBuoy,
   Map as MapIcon,
@@ -35,10 +34,11 @@ const bottomNav = [
 function Brand() {
   return (
     <Link href="/" className="flex items-center gap-2">
-      <span className="grid size-8 place-items-center rounded-xl bg-primary text-primary-foreground">
-        <Compass className="size-5" />
+      <span className="grid size-9 place-items-center overflow-hidden rounded-xl bg-white ring-1 ring-border">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/kelpers-logo.jpeg" alt="kelpers logo" className="size-full object-cover" />
       </span>
-      <span className="font-display text-xl font-semibold text-foreground">Terra</span>
+      <span className="font-display text-xl font-semibold text-foreground">kelpers</span>
     </Link>
   )
 }

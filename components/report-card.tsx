@@ -53,15 +53,15 @@ export function ReportCard({ report, onOpen }: { report: Report; onOpen?: () => 
           </span>
           <span className="shrink-0">{relativeTime(report.createdAt)}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {report.confirmationCount > 0 && (
-            <Badge variant="secondary" className="gap-1 font-normal">
+            <Badge variant="secondary" className="gap-1 whitespace-nowrap font-normal">
               <Users className="size-3" />
               {report.confirmationCount} confirmed
             </Badge>
           )}
           {report.incidentId && (
-            <Badge variant="outline" className="font-normal text-primary">
+            <Badge variant="outline" className="whitespace-nowrap font-normal text-primary">
               Part of an incident
             </Badge>
           )}

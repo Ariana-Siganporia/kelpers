@@ -170,7 +170,7 @@ export default function ProfilePage() {
         )}
 
         {tab === "My reports" && (
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 lg:grid-cols-2">
             {myReports.length > 0 ? (
               myReports.map((r) => <ReportCard key={r.id} report={r} onOpen={() => setSelectedReport(r.id)} />)
             ) : (
@@ -180,7 +180,7 @@ export default function ProfilePage() {
         )}
 
         {tab === "Registered" && (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             {registered.length > 0 ? (
               registered.map((o) => <OpportunityCard key={o.id} opp={o} />)
             ) : (
@@ -190,7 +190,7 @@ export default function ProfilePage() {
         )}
 
         {tab === "Saved" && (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             {saved.length > 0 ? (
               saved.map((o) => <OpportunityCard key={o.id} opp={o} />)
             ) : (

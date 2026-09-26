@@ -218,7 +218,7 @@ export default function MapPage() {
         <aside className={cn("lg:block", showFilters ? "block" : "hidden")}>{filters}</aside>
 
         <div className="flex flex-col gap-6">
-          <div className="h-[420px] overflow-hidden rounded-3xl border border-border shadow-sm md:h-[520px]">
+          <div className="isolate h-[420px] overflow-hidden rounded-3xl border border-border shadow-sm md:h-[520px]">
             <MapView
               reports={filteredReports}
               incidents={filteredIncidents}
@@ -238,7 +238,7 @@ export default function MapPage() {
                   {filteredIncidents.length}
                 </Badge>
               </h2>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4 lg:grid-cols-2">
                 {filteredIncidents.map((inc) => (
                   <IncidentCard key={inc.id} incident={inc} onOpen={() => setSelected({ kind: "incident", id: inc.id })} />
                 ))}
@@ -254,7 +254,7 @@ export default function MapPage() {
                   {filteredReports.length}
                 </Badge>
               </h2>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-3 lg:grid-cols-2">
                 {filteredReports.map((r) => (
                   <ReportCard key={r.id} report={r} onOpen={() => setSelected({ kind: "report", id: r.id })} />
                 ))}
@@ -270,7 +270,7 @@ export default function MapPage() {
                   {filteredOpps.length}
                 </Badge>
               </h2>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4 lg:grid-cols-2">
                 {filteredOpps.map((o) => (
                   <OpportunityCard key={o.id} opp={o} />
                 ))}

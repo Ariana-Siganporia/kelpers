@@ -143,7 +143,7 @@ export default function HomePage() {
       {/* Recent reports */}
       <section>
         <h2 className="mb-4 font-display text-2xl font-semibold">Recent observations</h2>
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-3 lg:grid-cols-2">
           {reports.slice(0, 6).map((r) => (
             <ReportCard key={r.id} report={r} onOpen={() => setSelected({ kind: "report", id: r.id })} />
           ))}
