@@ -1,25 +1,40 @@
 "use client"
 
-import { CalendarDays, Check, MapPin, Sparkles, Tag, Users } from "lucide-react"
+import { ArrowRight, CalendarDays, Check, HandHeart, MapPin, Sparkles, Tag, Users } from "lucide-react"
+import Link from "next/link"
 import { CategoryIcon } from "@/components/category-icon"
 import { SeverityBadge } from "@/components/severity-badge"
+import { FollowButton } from "@/components/follow-button"
+import { ListenButton } from "@/components/listen-button"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { categoryMeta } from "@/lib/categories"
 import { formatDateTime } from "@/lib/format"
+import { matchOpportunity } from "@/lib/help-matching"
+import { CURRENT_USER } from "@/lib/mock-data"
 import { useStore } from "@/lib/store"
 import type { Report } from "@/lib/types"
 
 export function ReportDetail({
   report,
   onOpenIncident,
+  onOpenOpportunity,
 }: {
   report: Report
   onOpenIncident?: (incidentId: string) => void
+  onOpenOpportunity?: (opportunityId: string) => void
 }) {
-  const { confirmReport, incidents } = useStore()
+  const { confirmReport, incidents, volunteer } = useStore()
   const meta = categoryMeta(report.category)
   const incident = report.incidentId ? incidents.find((i) => i.id === report.incidentId) : undefined
+  const match = matchOpportunity(report, volunteer)
+  const isOwnReport = report.userId === CURRENT_USER.id
+
+  const speech =
+    `${meta.label} report. Severity: ${report.severity}. ` +
+    `${report.description} ` +
+    `Reported near ${report.approximateLocation} on ${formatDateTime(report.createdAt)}, ` +
+    `with ${report.confirmationCount} community confirmations.`
 
   return (
     <div className="flex flex-col">
@@ -44,12 +59,29 @@ export function ReportDetail({
       </div>
 
       <div className="flex flex-col gap-5 p-5">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <SeverityBadge severity={report.severity} />
           {report.isCrisis && <Badge variant="crisis">Crisis report</Badge>}
+          <ListenButton text={speech} label="Listen" size="sm" className="ml-auto" />
         </div>
 
         <p className="text-pretty leading-relaxed">{report.description}</p>
+
+        {!isOwnReport && (
+          <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3">
+            <span
+              className="grid size-9 shrink-0 place-items-center rounded-full text-sm font-semibold text-white"
+              style={{ backgroundColor: meta.color }}
+            >
+              {report.userName.charAt(0)}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold">{report.userName}</p>
+              <p className="text-xs text-muted-foreground">Reported this observation</p>
+            </div>
+            <FollowButton userId={report.userId} size="sm" />
+          </div>
+        )}
 
         <dl className="grid gap-3 text-sm">
           <div className="flex items-center gap-2 text-muted-foreground">
@@ -98,6 +130,47 @@ export function ReportDetail({
             </span>
           </button>
         )}
+
+        <div>
+          <p className="mb-2 flex items-center gap-2 text-sm font-semibold">
+            <HandHeart className="size-4 text-primary" />
+            How you can help
+          </p>
+          {match ? (
+            <button
+              type="button"
+              onClick={() => onOpenOpportunity?.(match.id)}
+              className="flex w-full items-center gap-3 rounded-2xl border border-primary/25 bg-primary/5 p-3 text-left transition-colors hover:bg-primary/10"
+            >
+              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
+                <CategoryIcon name="HeartPulse" className="size-4" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-semibold">{match.title}</span>
+                <span className="block truncate text-xs text-muted-foreground">
+                  {match.organizationName} · {match.distanceMiles} mi · {match.date}
+                </span>
+              </span>
+              <ArrowRight className="size-4 shrink-0 text-primary" />
+            </button>
+          ) : (
+            <Link
+              href="/help"
+              className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-3 text-left transition-colors hover:bg-secondary"
+            >
+              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
+                <HandHeart className="size-4" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold">Explore ways to help</span>
+                <span className="block text-xs text-muted-foreground">
+                  Find volunteer events and cleanups near you
+                </span>
+              </span>
+              <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+            </Link>
+          )}
+        </div>
 
         <div className="rounded-2xl bg-secondary/60 p-4">
           <p className="text-sm font-medium">Are you seeing this too?</p>

@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic"
 import { Loader2 } from "lucide-react"
+import type { FocusTarget } from "./eco-map"
 import type { Incident, Report, VolunteerOpportunity } from "@/lib/types"
 
 const EcoMap = dynamic(() => import("./eco-map"), {
@@ -20,6 +21,8 @@ export function MapView(props: {
   onSelect?: (kind: "report" | "incident" | "opportunity", id: string) => void
   center?: [number, number]
   zoom?: number
+  focus?: FocusTarget | null
+  highlightId?: string | null
 }) {
   return <EcoMap {...props} />
 }

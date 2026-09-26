@@ -1,13 +1,16 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { Filter, Layers, MapPin } from "lucide-react"
+import { Suspense, useEffect, useMemo, useState } from "react"
+import { useSearchParams } from "next/navigation"
+import { EyeOff, Filter, Layers, MapPin } from "lucide-react"
 import { MapView } from "@/components/map/map-view"
+import { MapLegend } from "@/components/map-legend"
 import { ReportCard } from "@/components/report-card"
 import { IncidentCard } from "@/components/incident-card"
 import { OpportunityCard } from "@/components/opportunity-card"
 import { ReportDetail } from "@/components/report-detail"
 import { IncidentDetail } from "@/components/incident-detail"
+import { OpportunityDetail } from "@/components/opportunity-detail"
 import { DetailPanel } from "@/components/detail-panel"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -15,6 +18,7 @@ import { useStore } from "@/lib/store"
 import { CATEGORIES, CATEGORY_GROUPS, SEVERITY_META, SEVERITY_ORDER } from "@/lib/categories"
 import { CURRENT_USER } from "@/lib/mock-data"
 import { haversineMiles } from "@/lib/geo"
+import type { FocusTarget } from "@/components/map/eco-map"
 import type { CategoryId, Severity } from "@/lib/types"
 
 const DISTANCE_OPTIONS = [
@@ -38,8 +42,9 @@ const SEVERITY_OPTIONS: { label: string; value: Severity | "any" }[] = [
 
 const user = { latitude: CURRENT_USER.lat, longitude: CURRENT_USER.lng }
 
-export default function MapPage() {
+function MapPageInner() {
   const { reports, incidents, volunteer } = useStore()
+  const searchParams = useSearchParams()
 
   const [group, setGroup] = useState<string>("all")
   const [category, setCategory] = useState<CategoryId | "all">("all")
@@ -47,8 +52,35 @@ export default function MapPage() {
   const [dateDays, setDateDays] = useState(0)
   const [minSeverity, setMinSeverity] = useState<Severity | "any">("any")
   const [layers, setLayers] = useState({ reports: true, incidents: true, opportunities: true })
-  const [selected, setSelected] = useState<{ kind: "report" | "incident"; id: string } | null>(null)
+  const [selected, setSelected] = useState<{ kind: "report" | "incident" | "opportunity"; id: string } | null>(null)
   const [showFilters, setShowFilters] = useState(false)
+  const [focus, setFocus] = useState<FocusTarget | null>(null)
+  const [highlightId, setHighlightId] = useState<string | null>(null)
+
+  // Handle a deep-link like /map?focus=report:<id> or /map?focus=incident:<id>
+  // after submitting a report: fly to it, highlight/pulse it, and open its detail.
+  useEffect(() => {
+    const raw = searchParams.get("focus")
+    if (!raw) return
+    const [kind, id] = raw.split(":")
+    if (kind === "report") {
+      const r = reports.find((x) => x.id === id)
+      if (r) {
+        setFocus({ lat: r.latitude, lng: r.longitude, zoom: 15 })
+        setHighlightId(r.id)
+        setSelected({ kind: "report", id: r.id })
+      }
+    } else if (kind === "incident") {
+      const inc = incidents.find((x) => x.id === id)
+      if (inc) {
+        setFocus({ lat: inc.latitude, lng: inc.longitude, zoom: 14 })
+        setHighlightId(inc.id)
+        setSelected({ kind: "incident", id: inc.id })
+      }
+    }
+    // Only react to the initial query param resolution.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   const now = Date.now()
   const passesShared = (item: { latitude: number; longitude: number; category?: CategoryId; severity?: Severity; createdAt?: string }) => {
@@ -84,6 +116,10 @@ export default function MapPage() {
 
   const selectedReport = selected?.kind === "report" ? reports.find((r) => r.id === selected.id) : undefined
   const selectedIncident = selected?.kind === "incident" ? incidents.find((i) => i.id === selected.id) : undefined
+  const selectedOpportunity = selected?.kind === "opportunity" ? volunteer.find((o) => o.id === selected.id) : undefined
+
+  const panelTitle = selectedIncident ? "Incident" : selectedOpportunity ? "Opportunity" : "Report"
+  const allLayersOff = !layers.reports && !layers.incidents && !layers.opportunities
 
   const categoriesForGroup = group === "all" ? CATEGORIES : CATEGORIES.filter((c) => c.group === group)
 
@@ -218,16 +254,16 @@ export default function MapPage() {
         <aside className={cn("lg:block", showFilters ? "block" : "hidden")}>{filters}</aside>
 
         <div className="flex flex-col gap-6">
-          <div className="isolate h-[420px] overflow-hidden rounded-3xl border border-border shadow-sm md:h-[520px]">
+          <div className="relative isolate h-[420px] overflow-hidden rounded-3xl border border-border shadow-sm md:h-[520px]">
             <MapView
               reports={filteredReports}
               incidents={filteredIncidents}
               opportunities={filteredOpps}
-              onSelect={(kind, id) => {
-                if (kind === "opportunity") return
-                setSelected({ kind, id })
-              }}
+              focus={focus}
+              highlightId={highlightId}
+              onSelect={(kind, id) => setSelected({ kind, id })}
             />
+            <MapLegend />
           </div>
 
           {filteredIncidents.length > 0 && (
@@ -278,28 +314,53 @@ export default function MapPage() {
             </section>
           )}
 
-          {filteredReports.length + filteredIncidents.length + filteredOpps.length === 0 && (
-            <div className="grid place-items-center rounded-3xl border border-dashed border-border py-16 text-center">
-              <MapPin className="size-8 text-muted-foreground" />
-              <p className="mt-2 font-medium">No results match your filters</p>
-              <p className="text-sm text-muted-foreground">Try widening the distance or clearing a filter.</p>
-            </div>
-          )}
+          {filteredReports.length + filteredIncidents.length + filteredOpps.length === 0 &&
+            (allLayersOff ? (
+              <div className="grid place-items-center rounded-3xl border border-dashed border-border py-16 text-center">
+                <EyeOff className="size-8 text-muted-foreground" />
+                <p className="mt-2 font-medium">All layers are turned off</p>
+                <p className="max-w-sm text-sm text-muted-foreground">
+                  Turn on the Reports, Incidents, or Volunteer opportunities layer to see items on the map and in the
+                  list.
+                </p>
+              </div>
+            ) : (
+              <div className="grid place-items-center rounded-3xl border border-dashed border-border py-16 text-center">
+                <MapPin className="size-8 text-muted-foreground" />
+                <p className="mt-2 font-medium">No reports found</p>
+                <p className="max-w-sm text-sm text-muted-foreground">
+                  Try changing your filters, expanding the distance, or selecting another category.
+                </p>
+              </div>
+            ))}
         </div>
       </div>
 
-      <DetailPanel
-        open={Boolean(selected)}
-        onClose={() => setSelected(null)}
-        title={selectedIncident ? "Incident" : "Report"}
-      >
+      <DetailPanel open={Boolean(selected)} onClose={() => setSelected(null)} title={panelTitle}>
         {selectedReport && (
-          <ReportDetail report={selectedReport} onOpenIncident={(id) => setSelected({ kind: "incident", id })} />
+          <ReportDetail
+            report={selectedReport}
+            onOpenIncident={(id) => setSelected({ kind: "incident", id })}
+            onOpenOpportunity={(id) => setSelected({ kind: "opportunity", id })}
+          />
         )}
         {selectedIncident && (
-          <IncidentDetail incident={selectedIncident} onOpenReport={(id) => setSelected({ kind: "report", id })} />
+          <IncidentDetail
+            incident={selectedIncident}
+            onOpenReport={(id) => setSelected({ kind: "report", id })}
+            onOpenOpportunity={(id) => setSelected({ kind: "opportunity", id })}
+          />
         )}
+        {selectedOpportunity && <OpportunityDetail opp={selectedOpportunity} />}
       </DetailPanel>
     </div>
+  )
+}
+
+export default function MapPage() {
+  return (
+    <Suspense fallback={null}>
+      <MapPageInner />
+    </Suspense>
   )
 }
