@@ -31,7 +31,7 @@ export function DetailPanel({
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-stretch sm:justify-end">
+    <div className="fixed inset-0 z-[1100] flex items-end justify-center sm:items-stretch sm:justify-end">
       <button
         type="button"
         aria-label="Close panel"

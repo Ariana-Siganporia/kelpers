@@ -83,17 +83,22 @@ function buildIcon(point: MapPoint) {
   })
 }
 
-function FitBounds({ points }: { points: MapPoint[] }) {
+function FitBounds({ points, center }: { points: MapPoint[]; center: [number, number] }) {
   const map = useMap()
   useEffect(() => {
-    if (points.length === 0) return
-    if (points.length === 1) {
-      map.setView([points[0].latitude, points[0].longitude], 12)
+    // Only frame points close to the map center (metro Atlanta), so far-flung
+    // reports don't force the view to zoom out across the whole country.
+    const near = points.filter(
+      (p) => Math.abs(p.latitude - center[0]) < 1.2 && Math.abs(p.longitude - center[1]) < 1.2,
+    )
+    if (near.length === 0) return
+    if (near.length === 1) {
+      map.setView([near[0].latitude, near[0].longitude], 12)
       return
     }
-    const bounds = L.latLngBounds(points.map((p) => [p.latitude, p.longitude] as [number, number]))
-    map.fitBounds(bounds, { padding: [48, 48], maxZoom: 13 })
-  }, [map, points])
+    const bounds = L.latLngBounds(near.map((p) => [p.latitude, p.longitude] as [number, number]))
+    map.fitBounds(bounds, { padding: [48, 48], maxZoom: 12 })
+  }, [map, points, center])
   return null
 }
 
@@ -133,7 +138,7 @@ export default function EcoMap({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <FitBounds points={points} />
+      <FitBounds points={points} center={center} />
       {points.map((p) => (
         <Marker
           key={`${p.kind}-${p.id}`}

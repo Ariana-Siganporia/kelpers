@@ -2,7 +2,18 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ArrowRight, LifeBuoy, Microscope, Plus, Sparkles, TrendingUp } from "lucide-react"
+import {
+  ArrowRight,
+  Flame,
+  LifeBuoy,
+  Microscope,
+  Plus,
+  Sparkles,
+  TrendingUp,
+  Users,
+  Waves,
+  Wind,
+} from "lucide-react"
 import { MapView } from "@/components/map/map-view"
 import { IncidentCard } from "@/components/incident-card"
 import { ReportCard } from "@/components/report-card"
@@ -35,6 +46,37 @@ const ACTIONS = [
   },
 ]
 
+const MODULES = [
+  {
+    href: "/crisis",
+    icon: Flame,
+    title: "Rescue",
+    copy: "Wildfire & community evacuation logistics.",
+    tint: "bg-crisis/10 text-crisis",
+  },
+  {
+    href: "/crisis",
+    icon: Wind,
+    title: "Airlift",
+    copy: "Air quality tracking & mutual aid.",
+    tint: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
+  },
+  {
+    href: "/crisis",
+    icon: Waves,
+    title: "Raft",
+    copy: "Recovery & water grid mapping.",
+    tint: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+  },
+  {
+    href: "/community",
+    icon: Users,
+    title: "Community",
+    copy: "See volunteer work & sign up.",
+    tint: "bg-primary/10 text-primary",
+  },
+]
+
 export default function HomePage() {
   const { reports, incidents, observationCount } = useStore()
   const [selected, setSelected] = useState<{ kind: "report" | "incident"; id: string } | null>(null)
@@ -47,6 +89,13 @@ export default function HomePage() {
       {/* Hero */}
       <section className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/10 via-card to-accent/20 px-6 py-12 md:px-12 md:py-16">
         <div className="max-w-2xl">
+          <div className="mb-5 flex items-center gap-3">
+            <span className="grid size-14 place-items-center overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-border">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/kelpers-logo.jpeg" alt="kelpers logo" className="size-full object-cover" />
+            </span>
+            <span className="font-display text-2xl font-semibold tracking-tight">kelpers</span>
+          </div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-card/80 px-3 py-1 text-xs font-medium text-primary shadow-sm">
             <Sparkles className="size-3.5" />
             Community environmental intelligence
@@ -102,6 +151,36 @@ export default function HomePage() {
             </Link>
           )
         })}
+      </section>
+
+      {/* Response modules */}
+      <section>
+        <div className="mb-4">
+          <h2 className="font-display text-2xl font-semibold">Response modules</h2>
+          <p className="text-sm text-muted-foreground">
+            Coordinate community action during and after environmental crises.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {MODULES.map((m) => {
+            const Icon = m.icon
+            return (
+              <Link
+                key={m.title}
+                href={m.href}
+                className="group flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+              >
+                <span className={`grid size-11 place-items-center rounded-xl ${m.tint}`}>
+                  <Icon className="size-5" />
+                </span>
+                <div>
+                  <h3 className="font-display text-lg font-semibold">{m.title}</h3>
+                  <p className="text-sm text-muted-foreground">{m.copy}</p>
+                </div>
+              </Link>
+            )
+          })}
+        </div>
       </section>
 
       {/* Map preview */}
