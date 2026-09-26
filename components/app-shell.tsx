@@ -18,7 +18,7 @@ import { useStore } from "@/lib/store"
 const primaryNav = [
   { href: "/", label: "Home", icon: Home },
   { href: "/map", label: "Map", icon: MapIcon },
-  { href: "/help", label: "Get Help", icon: LifeBuoy },
+  { href: "/help", label: "Help Others", icon: LifeBuoy },
   { href: "/research", label: "Research", icon: Microscope },
   { href: "/profile", label: "Profile", icon: User },
 ]
