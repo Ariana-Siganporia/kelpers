@@ -5,8 +5,6 @@ import Link from "next/link"
 import {
   ArrowRight,
   Flame,
-  LifeBuoy,
-  Microscope,
   Plus,
   Sparkles,
   TrendingUp,
@@ -22,28 +20,10 @@ import { IncidentDetail } from "@/components/incident-detail"
 import { DetailPanel } from "@/components/detail-panel"
 import { useStore } from "@/lib/store"
 
-const ACTIONS = [
-  {
-    href: "/report",
-    icon: Plus,
-    title: "Report",
-    copy: "Tell us what you're seeing.",
-    accent: "bg-primary text-primary-foreground",
-  },
-  {
-    href: "/help",
-    icon: LifeBuoy,
-    title: "Help",
-    copy: "Find ways to take action nearby.",
-    accent: "bg-accent text-accent-foreground",
-  },
-  {
-    href: "/research",
-    icon: Microscope,
-    title: "Contribute",
-    copy: "Help researchers understand our environment.",
-    accent: "bg-secondary text-secondary-foreground",
-  },
+const GOOD_NEWS = [
+  { value: "420 lbs", label: "of litter cleared at Piedmont Park" },
+  { value: "85 trees", label: "planted along the BeltLine" },
+  { value: "3 river cleanups", label: "completed this week" },
 ]
 
 const MODULES = [
@@ -124,33 +104,22 @@ export default function HomePage() {
               <ArrowRight className="size-4" />
             </Link>
           </div>
-        </div>
-      </section>
 
-      {/* Action cards */}
-      <section className="grid gap-4 sm:grid-cols-3">
-        {ACTIONS.map((a) => {
-          const Icon = a.icon
-          return (
-            <Link
-              key={a.href}
-              href={a.href}
-              className="group flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
-            >
-              <span className={`grid size-11 place-items-center rounded-xl ${a.accent}`}>
-                <Icon className="size-5" />
-              </span>
-              <div>
-                <h2 className="font-display text-lg font-semibold">{a.title}</h2>
-                <p className="text-sm text-muted-foreground">{a.copy}</p>
-              </div>
-              <span className="mt-auto flex items-center gap-1 text-sm font-medium text-primary">
-                Get started
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-              </span>
-            </Link>
-          )
-        })}
+          <div className="mt-8 rounded-2xl border border-border bg-card/70 p-4 backdrop-blur">
+            <p className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-primary">
+              <Sparkles className="size-3.5" />
+              Good happening near you
+            </p>
+            <ul className="flex flex-wrap gap-x-6 gap-y-3">
+              {GOOD_NEWS.map((g) => (
+                <li key={g.label} className="flex items-baseline gap-1.5">
+                  <span className="font-display text-lg font-semibold tabular-nums">{g.value}</span>
+                  <span className="text-sm text-muted-foreground">{g.label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </section>
 
       {/* Response modules */}

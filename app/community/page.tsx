@@ -1,8 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, Heart, Users } from "lucide-react"
+import { ArrowRight, Heart, MapPin, Users } from "lucide-react"
 import { OpportunityCard } from "@/components/opportunity-card"
+import { FollowButton } from "@/components/follow-button"
+import { COMMUNITY_MEMBERS } from "@/lib/mock-data"
 import { useStore } from "@/lib/store"
 
 const GALLERY = [
@@ -93,6 +95,39 @@ export default function CommunityPage() {
                 </p>
               </figcaption>
             </figure>
+          ))}
+        </div>
+      </section>
+
+      {/* People to follow */}
+      <section>
+        <div className="mb-4">
+          <h2 className="font-display text-2xl font-semibold">People to follow</h2>
+          <p className="text-sm text-muted-foreground">
+            Follow active neighbors to keep up with the reports and causes they care about.
+          </p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {COMMUNITY_MEMBERS.map((member) => (
+            <div
+              key={member.id}
+              className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm"
+            >
+              <span
+                className="grid size-11 shrink-0 place-items-center rounded-full text-base font-semibold text-white"
+                style={{ backgroundColor: member.color }}
+              >
+                {member.name.charAt(0)}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold">{member.name}</p>
+                <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
+                  <MapPin className="size-3 shrink-0" />
+                  {member.location} · {member.reports} reports
+                </p>
+              </div>
+              <FollowButton userId={member.id} size="sm" />
+            </div>
           ))}
         </div>
       </section>

@@ -85,7 +85,7 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        <div className="mt-6 grid grid-cols-4 gap-3">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {stats.map((s) => (
             <div key={s.label} className="rounded-2xl bg-card/70 p-3 text-center backdrop-blur">
               <p className="font-display text-2xl font-semibold">{s.value}</p>
